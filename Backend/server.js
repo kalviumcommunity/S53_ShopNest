@@ -17,16 +17,15 @@ app.use(cors({
 
 // Middleware for error catching
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.log(err);
   res.status(500).send("Something went wrong!");
   next();
 });
 
-const ProductRouter = require('./Routes/ProductRoute.js')
-app.use('/product-route', ProductRouter)
+const ProductRouter = require('./Routes/ProductRoute.js');
+const UserRouter = require('./Routes/UserRoute.js');
 
-const UserRouter = require('./Routes/UserRoute.js')
-app.use('/product-route', UserRouter)
+app.use('/product-route', ProductRouter, UserRouter);
 
 app.get("/", (req, res) => {
   res.send("Hello World");
