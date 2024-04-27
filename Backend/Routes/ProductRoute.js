@@ -12,70 +12,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Creat new product
-router.post("/post", async (req, res) => {
-    const product = new Product({
-      name: req.body.name,
-      title: req.body.title,
-      price: req.body.price,
-      location: req.body.location,
-      description: req.body.description,
-      latitude: req.body.latitude,
-      longitude: req.body.longitude,
-      userId: req.body.userId,
-      category: req.body.category,
-      images: req.body.images,
-      brand: req.body.brand,
-      warranty: req.body.warranty,
-      condition: req.body.condition,
-      size: req.body.size,
-      gender: req.body.gender,
-      color: req.body.color,
-      material: req.body.material,
-      isbn: req.body.isbn,
-      edition: req.body.edition,
-      publisher: req.body.publisher,
-      jobType: req.body.jobType,
-      requirements: req.body.requirements,
-      processor: req.body.processor,
-      ram: req.body.ram,
-      storage: req.body.storage,
-      screenSize: req.body.screenSize,
-      os: req.body.os,
-    });
-  
-    try {
-      const savedProduct = await product.save();
-      res.json(savedProduct);
-    } catch (err) {
-      console.log(err);
-    }
-  });
-
-// Put route to add buyerID and offer
-router.post("/product/buy", async (req, res) => {
-    const productId = req.body.productId
-    console.log(productId)
-    const data = {
-      productId: productId,
-      buyerId: req.body.buyerId,
-      offer: req.body.offer,
-      status: req.body.status
-    }
-  
-    try {
-      const updatedProduct = await Product.findByIdAndUpdate(
-        productId,
-        { $push: { offers: data } },
-        { new: true }
-      );
-      console.log(updatedProduct)
-      res.json("Request Successfull")
-    } catch (err) {
-      console.log("Buyer", err);
-    }
-  });
-
 // Find the product by productId
 router.get("/product/:productId", async (req, res) => {
   try {
@@ -93,5 +29,152 @@ router.get("/product/:productId", async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
+// Creat new product
+router.post("/post", async (req, res) => {
+  const product = new Product({
+    name: req.body.name,
+    title: req.body.title,
+    price: req.body.price,
+    location: req.body.location,
+    description: req.body.description,
+    latitude: req.body.latitude,
+    longitude: req.body.longitude,
+    userId: req.body.userId,
+    category: req.body.category,
+    images: req.body.images,
+    brand: req.body.brand,
+    warranty: req.body.warranty,
+    condition: req.body.condition,
+    size: req.body.size,
+    gender: req.body.gender,
+    color: req.body.color,
+    material: req.body.material,
+    isbn: req.body.isbn,
+    edition: req.body.edition,
+    publisher: req.body.publisher,
+    jobType: req.body.jobType,
+    requirements: req.body.requirements,
+    processor: req.body.processor,
+    ram: req.body.ram,
+    storage: req.body.storage,
+    screenSize: req.body.screenSize,
+    os: req.body.os,
+  });
+
+  try {
+    const savedProduct = await product.save();
+    res.json(savedProduct);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+// Put route to add buyerID and offer
+router.post("/product/buy", async (req, res) => {
+  const productId = req.body.productId;
+  console.log(productId);
+  const data = {
+    productId: productId,
+    buyerId: req.body.buyerId,
+    offer: req.body.offer,
+    status: req.body.status,
+  };
+
+  try {
+    const updatedProduct = await Product.findByIdAndUpdate(
+      productId,
+      { $push: { offers: data } },
+      { new: true }
+    );
+    console.log(updatedProduct);
+    res.json("Request Successfull");
+  } catch (err) {
+    console.log("Buyer", err);
+  }
+});
+
+// userDashboard change status
+router.put("/userDashboard/products/:action/:productId", async (req, res) => {
+  const action = req.params.action;
+  const productId = req.params.productId;
+  try {
+    const foundProduct = await Product.findById(productId);
+
+    if (action === "Edit") {
+      console.log("Edit");
+    } else if (action === "Delete") {
+      console.log("Delete");
+    } else {
+      if (foundProduct && action !== foundProduct.status) {
+        const updatedProduct = await Product.updateOne(
+          { _id: productId },
+          { $set: { status: action } }
+        );
+        res.json("Product updated successfully");
+      }
+    }
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+// userDashboard Edit Price
+router.put(
+  "/userDashboard/products/priceUpdate/:newPrice/:productId",
+  async (req, res) => {
+    const productId = req.params.productId;
+    const newPrice = req.params.newPrice;
+    console.log(newPrice);
+    console.log(productId);
+    try {
+      const updatedProduct = await Product.updateOne(
+        { _id: productId },
+        { $set: { price: newPrice } }
+      );
+      res.json("Product updated successfully");
+    } catch (err) {
+      console.log("Price Update Error", err);
+    }
+  }
+);
+
+// userDashboard Accept Offer
+router.put(
+  "/userDashboard/acceptOffer/:productId/:buyerId/:action",
+  async (req, res) => {
+    const { productId, buyerId, action } = req.params;
+    console.log(productId, buyerId, action);
+    if (action === "accept") {
+      try {
+        const updatedProduct = await Product.findOneAndUpdate(
+          {
+            _id: productId,
+            "offers.buyerId": buyerId,
+          },
+          { $set: { "offers.$.status": "accepted" } },
+          { new: true }
+        );
+        res.json("Offer Accepted Succesfully");
+      } catch (err) {
+        console.log("Accept Offer Error", err);
+      }
+    } else {
+      try {
+        const updatedProduct = await Product.findOneAndUpdate(
+          {
+            _id: productId,
+            "offers.buyerId": buyerId,
+          },
+          { $set: { "offers.$.status": "pending" } },
+          { new: true }
+        );
+        res.json("Accept Offer undo successfully");
+      } catch (err) {
+        console.log("Undo Error", err);
+      }
+    }
+  }
+);
 
 module.exports = router;
