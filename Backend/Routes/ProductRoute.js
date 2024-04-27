@@ -115,7 +115,7 @@ router.put("/userDashboard/products/:action/:productId", async (req, res) => {
       }
     }
   } catch (err) {
-    console.log(err);
+    console.log("Crud Dashboard Error", err);
   }
 });
 
