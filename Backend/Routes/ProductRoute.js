@@ -30,23 +30,68 @@ router.get('/product/:productId', async (req, res) => {
     }
 });
 
-
-router.post('/post', async (req,res) => {
-
+// Creat new product
+router.post("/post", async (req, res) => {
     const product = new Product({
-        name: req.body.name,
-        title: req.body.title,
-        price: req.body.price,
-        location: req.body.location,
-        image: req.body.image
-    })
-
+      name: req.body.name,
+      title: req.body.title,
+      price: req.body.price,
+      location: req.body.location,
+      description: req.body.description,
+      latitude: req.body.latitude,
+      longitude: req.body.longitude,
+      userId: req.body.userId,
+      category: req.body.category,
+      images: req.body.images,
+      brand: req.body.brand,
+      warranty: req.body.warranty,
+      condition: req.body.condition,
+      size: req.body.size,
+      gender: req.body.gender,
+      color: req.body.color,
+      material: req.body.material,
+      isbn: req.body.isbn,
+      edition: req.body.edition,
+      publisher: req.body.publisher,
+      jobType: req.body.jobType,
+      requirements: req.body.requirements,
+      processor: req.body.processor,
+      ram: req.body.ram,
+      storage: req.body.storage,
+      screenSize: req.body.screenSize,
+      os: req.body.os,
+    });
+  
     try {
-        const product1 = await product.save()
-        res.json(product1)
+      const savedProduct = await product.save();
+      res.json(savedProduct);
     } catch (err) {
-        console.error(err)
+      console.error(err);
     }
-})
+  });
+
+// Put route to add buyerID and offer
+router.post("/product/buy", async (req, res) => {
+    const productId = req.body.productId
+    console.log(productId)
+    const data = {
+      productId: productId,
+      buyerId: req.body.buyerId,
+      offer: req.body.offer,
+      status: req.body.status
+    }
+  
+    try {
+      const updatedProduct = await Product.findByIdAndUpdate(
+        productId,
+        { $push: { offers: data } },
+        { new: true }
+      );
+      console.log(updatedProduct)
+      res.json("Request Successfull")
+    } catch (err) {
+      console.log("Buyer", err);
+    }
+  });
 
 module.exports = router
