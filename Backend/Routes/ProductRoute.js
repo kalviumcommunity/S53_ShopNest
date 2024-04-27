@@ -8,11 +8,10 @@ router.get("/", async (req, res) => {
     const products = await Product.find({});
     res.json(products);
   } catch (err) {
-    console.error(err);
+    console.log(err);
   }
 });
 
-<<<<<<< HEAD
 // Creat new product
 router.post("/post", async (req, res) => {
     const product = new Product({
@@ -49,7 +48,7 @@ router.post("/post", async (req, res) => {
       const savedProduct = await product.save();
       res.json(savedProduct);
     } catch (err) {
-      console.error(err);
+      console.log(err);
     }
   });
 
@@ -76,41 +75,6 @@ router.post("/product/buy", async (req, res) => {
       console.log("Buyer", err);
     }
   });
-=======
-// Get route to fetch products by search
-router.get("/search", async (req, res) => {
-  let search = req.query.search;
-
-  try {
-    const products = await Product.find({
-      $or: [
-        { name: { $regex: new RegExp(search, "i") } },
-        { title: { $regex: new RegExp(search, "i") } },
-      ],
-    });
-    res.json(products);
-  } catch (err) {
-    console.error(err);
-  }
-});
-
-// Get route to fetch products by category
-router.get("/category", async (req, res) => {
-  const query = req.query.category;
-
-  try {
-    if (query === "All Categories") {
-      const products = await Product.find({});
-      res.json(products);
-    } else {
-      const products = await Product.find({ category: query });
-      res.json(products);
-    }
-  } catch (err) {
-    console.error(err);
-  }
-});
->>>>>>> 230bb7e3c33adeeaa38f16a4e1634883ae585fdc
 
 // Find the product by productId
 router.get("/product/:productId", async (req, res) => {
@@ -125,7 +89,7 @@ router.get("/product/:productId", async (req, res) => {
 
     res.json(foundProduct);
   } catch (err) {
-    console.error(err);
+    console.log(err);
     res.status(500).json({ message: "Internal server error" });
   }
 });
