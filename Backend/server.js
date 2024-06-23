@@ -22,10 +22,11 @@ app.use((err, req, res, next) => {
   next();
 });
 
-const ProductRouter = require('./Routes/ProductRoute.js');
-const UserRouter = require('./Routes/UserRoute.js');
+const ProductRouter = require('./Routes/ProductRoute.js')
+app.use('/product-route', ProductRouter)
 
-app.use('/product-route', ProductRouter, UserRouter);
+const UserRouter = require('./Routes/UserRoute.js')
+app.use('/product-route', UserRouter)
 
 app.get("/", (req, res) => {
   res.send("Hello World");
