@@ -32,4 +32,14 @@ app.get("/", (req, res) => {
   res.send("Hello World");
 });
 
-
+// Handle database connection
+connectDb()
+  .then(() => {
+    app.listen(port, () => {
+      console.log(`Server is running on port ${port}`);
+    });
+  })
+  .catch((err) => {
+    console.error("Failed to connect to MongoDB:", err);
+    process.exit(1);
+  });
