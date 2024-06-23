@@ -64,6 +64,7 @@ router.post("/signup", async (req, res) => {
   let userId = req.body.userId;
   let email = req.body.email;
   let phone = req.body.phone;
+  let username = req.body.username;
   let userImage = req.body.userImage; 
   let userSince = req.body.userSince; 
 
