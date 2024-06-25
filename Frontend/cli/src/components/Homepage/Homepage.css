@@ -1,0 +1,9 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+.homepage .flex {
+  display: flex;
+  justify-content: space-between;
+}/*# sourceMappingURL=Homepage.css.map */
