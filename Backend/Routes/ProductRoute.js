@@ -8,7 +8,41 @@ router.get("/", async (req, res) => {
     const products = await Product.find({});
     res.json(products);
   } catch (err) {
-    console.log(err);
+    console.error(err);
+  }
+});
+
+// Get route to fetch products by search
+router.get("/search", async (req, res) => {
+  let search = req.query.search;
+
+  try {
+    const products = await Product.find({
+      $or: [
+        { name: { $regex: new RegExp(search, "i") } },
+        { title: { $regex: new RegExp(search, "i") } },
+      ],
+    });
+    res.json(products);
+  } catch (err) {
+    console.error(err);
+  }
+});
+
+// Get route to fetch products by category
+router.get("/category", async (req, res) => {
+  const query = req.query.category;
+
+  try {
+    if (query === "All Categories") {
+      const products = await Product.find({});
+      res.json(products);
+    } else {
+      const products = await Product.find({ category: query });
+      res.json(products);
+    }
+  } catch (err) {
+    console.error(err);
   }
 });
 
@@ -25,7 +59,7 @@ router.get("/product/:productId", async (req, res) => {
 
     res.json(foundProduct);
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(500).json({ message: "Internal server error" });
   }
 });
@@ -66,31 +100,7 @@ router.post("/post", async (req, res) => {
     const savedProduct = await product.save();
     res.json(savedProduct);
   } catch (err) {
-    console.log(err);
-  }
-});
-
-// Put route to add buyerID and offer
-router.post("/product/buy", async (req, res) => {
-  const productId = req.body.productId;
-  console.log(productId);
-  const data = {
-    productId: productId,
-    buyerId: req.body.buyerId,
-    offer: req.body.offer,
-    status: req.body.status,
-  };
-
-  try {
-    const updatedProduct = await Product.findByIdAndUpdate(
-      productId,
-      { $push: { offers: data } },
-      { new: true }
-    );
-    console.log(updatedProduct);
-    res.json("Request Successfull");
-  } catch (err) {
-    console.log("Buyer", err);
+    console.error(err);
   }
 });
 
@@ -115,7 +125,7 @@ router.put("/userDashboard/products/:action/:productId", async (req, res) => {
       }
     }
   } catch (err) {
-    console.log("Crud Dashboard Error", err);
+    console.log(err);
   }
 });
 
@@ -143,7 +153,8 @@ router.put(
 router.put(
   "/userDashboard/acceptOffer/:productId/:buyerId/:action",
   async (req, res) => {
-    const { productId, buyerId, action } = req.params;
+
+    const { productId, buyerId, action } = req.params
     console.log(productId, buyerId, action);
     if (action === "accept") {
       try {
@@ -176,5 +187,81 @@ router.put(
     }
   }
 );
+
+// userDashboard change status
+router.delete("/userDashboard/products/reject/:offer/:productId",async (req, res) => {
+    const offer = req.params.offer;
+    const productId = req.params.productId;
+    console.log(offer)
+    console.log(productId)
+    try {
+      const updatedProduct = await Product.findOneAndUpdate(
+        { _id: productId },
+        { $pull: { offers: offer } },
+        { new: true }
+      );
+      console.log(updatedProduct);
+      res.send("Offer removed successfully");
+    } catch (err) {
+      console.log(err);
+      res.status(500).send("Internal Server Error");
+    }
+  }
+);
+
+// userDashboard delete the product
+router.delete("/userDashboard/products/:productId", async (req, res) => {
+  try {
+    const productId = req.params.productId;
+    const deleteProduct = await Product.findByIdAndDelete(productId);
+
+    if (!deleteProduct) {
+      res.json("Product Not Found");
+    }
+    res.json("Product Removed Successfully");
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+// Put route to add buyerID and offer
+router.post("/product/buy", async (req, res) => {
+  const productId = req.body.productId
+  console.log(productId)
+  const data = {
+    productId: productId,
+    buyerId: req.body.buyerId,
+    offer: req.body.offer,
+    status: req.body.status
+  }
+
+  try {
+    const updatedProduct = await Product.findByIdAndUpdate(
+      productId,
+      { $push: { offers: data } },
+      { new: true }
+    );
+    console.log(updatedProduct)
+    res.json("Request Successfull")
+  } catch (err) {
+    console.log("Buyer", err);
+  }
+});
+
+// Remove offer by the buyer
+router.delete('/removeOffer/:productId/:buyerId', async (req, res) => {
+  const productId = req.params.productId
+  const buyerId = req.params.buyerId
+  try {
+    const updatedProduct = await Product.findOneAndUpdate(
+      { _id: productId },
+      { $pull : { 'offers': { buyerId: buyerId } } },
+      { new: true }
+    )
+    res.json("Offer Removed Successfully")
+  } catch (err) {
+    console.log(err)
+  }
+})
 
 module.exports = router;

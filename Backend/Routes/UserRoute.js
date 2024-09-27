@@ -3,16 +3,51 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const User = require("../Models/UserModel");
-const Product = require("../Models/ProductModel");
+const Product = require("../Models/ProductModel")
+
+// Get route for getting all the users
+router.get("/login", async (req, res) => {
+  try {
+    const users = await User.find({});
+    res.json(users);
+  } catch (err) {
+    console.error(err);
+  }
+});
+
+// Get route to get wishlist products
+router.get("/wishlist/:userId", async (req, res) => {
+  let userId = req.params.userId;
+
+  try {
+    const response = await User.find({ userId: userId });
+    res.json(response[0].likedProducts);
+  } catch (err) {
+    console.error(err);
+  }
+});
+
+// Get route for single user
+router.get('/user/:userId', async (req, res) => {
+  try {
+      const userId = req.params.userId;
+      const foundUser = await User.find({ userId: userId });
+      res.json(foundUser);
+  } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Internal server error" });
+  }
+});
 
 // Post route for wishlist products
 router.post("/like-product", async (req, res) => {
   let productId = req.body.productId;
   let userId = req.body.userId;
-  console.log(userId, productId);
+  console.log(userId, productId)
 
   try {
-    const productToBeAdded = await Product.findById(productId).exec();
+
+    const productToBeAdded = await Product.findById( productId ).exec()
 
     const updatedUser = await User.updateOne(
       { userId: userId },
@@ -20,7 +55,7 @@ router.post("/like-product", async (req, res) => {
     );
     res.json({ message: "liked success" });
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 });
 
@@ -47,10 +82,7 @@ router.post("/signup", async (req, res) => {
     const existingUser = await User.findOne({ userId: user.userId });
     if (existingUser) {
       if (user.userImage && existingUser.userImage !== user.userImage) {
-        await User.updateOne(
-          { userId: user.userId },
-          { userImage: user.userImage }
-        );
+        await User.updateOne({ userId: user.userId }, { userImage: user.userImage });
         return res.json({ message: "User image updated successfully" });
       }
       return res.status(400).json({ message: "User already exists" });
@@ -67,10 +99,11 @@ router.post("/signup", async (req, res) => {
     });
     res.json({ message: "User registered successfully" });
   } catch (error) {
-    console.log("Error registering user:", error);
+    console.error("Error registering user:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
 
 // Post route for Login
 router.post("/login", async (req, res) => {
@@ -99,8 +132,35 @@ router.post("/login", async (req, res) => {
 
     res.json({ token, userId: validUser._id, username: user.username });
   } catch (error) {
-    console.log("error logging user:", error);
+    console.error("error logging user:", error);
     res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// Delete route to remove liked products
+router.delete("/remove-like-product/:userId/:productId", async (req, res) => {
+  const userId = req.params.userId;
+  const productId = req.params.productId;
+  console.log(userId, productId)
+
+  try {
+    const result = await User.findOneAndUpdate(
+      { userId: userId },
+      { $pull: { 'likedProducts': { _id : productId} } },
+      { new: true }
+    );
+
+    if (result) {
+      res.json({ message: "removed product" });
+    } else {
+      console.log("No document found matching the query criteria.");
+      res
+        .status(404)
+        .json({ error: "No document found matching the query criteria." });
+    }
+  } catch (error) {
+    console.log("Error:", error.message);
+    res.status(500).json({ error: error.message });
   }
 });
 
