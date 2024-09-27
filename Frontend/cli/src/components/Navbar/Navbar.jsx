@@ -106,12 +106,7 @@ function Navbar() {
 
           <div className="button_div">
             <header>
-              <SignedOut>
-                <SignInButton className='button' />
-              </SignedOut>
-              <SignedIn>
-                <UserButton />
-              </SignedIn>
+
             </header>
           </div>
         </div>
