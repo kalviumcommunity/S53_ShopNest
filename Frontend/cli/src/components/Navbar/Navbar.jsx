@@ -12,7 +12,7 @@ function Navbar() {
   const { t } = useTranslation();
   const { home, wishlist, contact, register } = t("Navbar");
   const { user } = useClerk(); // Get the user object directly
-  
+
   const [isSticky, setIsSticky] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userId, setUserId] = useState(null); // Declare userId state
@@ -34,13 +34,13 @@ function Navbar() {
     // const handleScroll = () => {
     //   setIsSticky(window.scrollY > 0);
     // };
-  
+
     // window.addEventListener("scroll", handleScroll);
-  
+
     // return () => {
     //   window.removeEventListener("scroll", handleScroll);
     // };
-  },[]);
+  }, []);
 
   useEffect(() => {
     const handleAuth = async () => {
@@ -53,7 +53,7 @@ function Navbar() {
           const username = user.firstName;
           const userSince = user.createdAt;
           const data = { userId, email, phone, userImage, username, userSince };
-          
+
           const response = await axios.post(import.meta.env.VITE_SIGNUP_KEY, data);
           console.log(response);
           alert("User added successfully");
@@ -64,7 +64,7 @@ function Navbar() {
         console.log("User already exists");
       }
     };
-  
+
     handleAuth();
   })
 
@@ -73,18 +73,18 @@ function Navbar() {
     console.log(auth);
 
     if (auth === '0') {
-        setIsLoggedIn(false);
-        alert("Please login first");
+      setIsLoggedIn(false);
+      alert("Please login first");
     } else {
-        setIsLoggedIn(true);
-        console.log(user.id);
-        if (user.id) {
-            navigate(`/wishlist/${user.id}`);
-        } else {
-            console.log(user);
-        }
+      setIsLoggedIn(true);
+      console.log(user.id);
+      if (user.id) {
+        navigate(`/wishlist/${user.id}`);
+      } else {
+        console.log(user);
+      }
     }
-};
+  };
 
   return (
     <div className={`navbar ${isSticky ? 'sticky' : ""}`}>
@@ -98,7 +98,7 @@ function Navbar() {
             <Link to="/">{home}</Link>
           </div>
           <div className='text'>
-            <div onClick={handleWishlistClick}>{wishlist}</div>    
+            <div onClick={handleWishlistClick}>{wishlist}</div>
           </div>
           <div className='text'>
             <Link to="contact-us">{contact}</Link>
@@ -106,7 +106,12 @@ function Navbar() {
 
           <div className="button_div">
             <header>
-
+              <SignedOut>
+                <SignInButton className='button' />
+              </SignedOut>
+              <SignedIn>
+                <UserButton />
+              </SignedIn>
             </header>
           </div>
         </div>
