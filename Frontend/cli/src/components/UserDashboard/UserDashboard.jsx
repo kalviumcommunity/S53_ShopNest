@@ -123,7 +123,32 @@ function Dashboard() {
     setProducts(filteredProducts)
   }
 
+  const handleAction = async (action, productId) => {
+    try {
+      if (action === "Edit") {
+        console.log("Edit")
+      } else if (action === "Delete") {
+        alert("Delete the product")
+        const response = await axios.delete(`${import.meta.env.VITE_USER_DASHBOARD_CRUD_KEY}/${productId}`)
+        console.log("Delete")
+        window.location.reload()
+      } else {
+        const response = await axios.put(`${import.meta.env.VITE_USER_DASHBOARD_CRUD_KEY}/${action}/${productId}`)
+        console.log("Response", response.data)
+        window.location.reload()
+      }
+    } catch (err) {
+      console.log("userDashboard crud error", err)
+    }
 
+  }
+
+  const startEditing = (productId) => {
+    setIsEditing((prevIsEditing) => ({
+      ...prevIsEditing,
+      [productId]: true
+    }));
+  }
 
   const handlePriceUpdate = async (id) => {
     const productId = id
@@ -665,7 +690,8 @@ function Dashboard() {
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
                                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-
+                                          <DropdownMenuItem value='Edit' onClick={() => startEditing(product._id)}>Edit</DropdownMenuItem>
+                                          <DropdownMenuItem value='Delete' onClick={() => handleAction("Delete", product._id)}>Delete</DropdownMenuItem>
                                           <DropdownMenuItem value='Sold' onClick={() => handleAction("Sold", product._id)}>Sold</DropdownMenuItem>
                                           <DropdownMenuItem value='Draft' onClick={() => handleAction("Draft", product._id)}>Draft</DropdownMenuItem>
                                         </DropdownMenuContent>
