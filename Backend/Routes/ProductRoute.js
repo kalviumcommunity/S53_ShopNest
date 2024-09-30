@@ -129,25 +129,7 @@ router.put("/userDashboard/products/:action/:productId", async (req, res) => {
   }
 });
 
-// userDashboard Edit Price
-router.put(
-  "/userDashboard/products/priceUpdate/:newPrice/:productId",
-  async (req, res) => {
-    const productId = req.params.productId;
-    const newPrice = req.params.newPrice;
-    console.log(newPrice);
-    console.log(productId);
-    try {
-      const updatedProduct = await Product.updateOne(
-        { _id: productId },
-        { $set: { price: newPrice } }
-      );
-      res.json("Product updated successfully");
-    } catch (err) {
-      console.log("Price Update Error", err);
-    }
-  }
-);
+
 
 // userDashboard Accept Offer
 router.put(
@@ -209,20 +191,7 @@ router.delete("/userDashboard/products/reject/:offer/:productId",async (req, res
   }
 );
 
-// userDashboard delete the product
-router.delete("/userDashboard/products/:productId", async (req, res) => {
-  try {
-    const productId = req.params.productId;
-    const deleteProduct = await Product.findByIdAndDelete(productId);
 
-    if (!deleteProduct) {
-      res.json("Product Not Found");
-    }
-    res.json("Product Removed Successfully");
-  } catch (err) {
-    console.log(err);
-  }
-});
 
 // Put route to add buyerID and offer
 router.post("/product/buy", async (req, res) => {
