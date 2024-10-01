@@ -105,6 +105,37 @@ router.post("/signup", async (req, res) => {
 });
 
 
+// Post route for Login
+router.post("/login", async (req, res) => {
+  const loginData = req.body;
+
+  const user = {
+    username: req.body.username,
+    password: req.body.password,
+  };
+
+  try {
+    const validUser = await User.findOne({ username: loginData.username });
+    if (!validUser) {
+      return res.status(401).json({ message: "User does not exist" });
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+      loginData.password,
+      validUser.password
+    );
+    if (!isPasswordValid) {
+      return res.json({ message: "Username or Password Is Incorrect" });
+    }
+
+    const token = jwt.sign({ id: validUser._id }, "secret");
+
+    res.json({ token, userId: validUser._id, username: user.username });
+  } catch (error) {
+    console.error("error logging user:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 
 // Delete route to remove liked products
 router.delete("/remove-like-product/:userId/:productId", async (req, res) => {
